@@ -239,17 +239,37 @@
     
     // MOVED LANES HIGHER (Previous were 220 and 500)
     const lanes = [ { y: 170, occupied: false }, { y: 410, occupied: false } ];
-
     const emailDatabase = [
+        /* PHISHING / SCAMS */
         { from: "support@g0ogle.net", subject: "Security Alert: Login detected", isScam: true },
         { from: "admin@robux-claims.io", subject: "Free 10,000 Robux for you!", isScam: true },
         { from: "verify@netfllx-billing.co", subject: "Account on hold - update now", isScam: true },
         { from: "delivery@fedex-tracking.biz", subject: "Package Pending Arrival", isScam: true },
+        { from: "official@mi-crosoft.com", subject: "New Security Update", isScam: true },
+        { from: "rewards@fortnite-gift.biz", subject: "Your skins are waiting!", isScam: true },
+        { from: "bank@secure-login.net", subject: "Urgent: Verify your account", isScam: true },
+        { from: "apple-support@verify.co", subject: "Unauthorized purchase found", isScam: true },
+        { from: "steam@games-prizes.xyz", subject: "Winner: $50 Steam Wallet Card", isScam: true },
+        { from: "no-reply@faceb00k-app.com", subject: "Someone tagged you in a photo", isScam: true },
+        { from: "alert@paypaI-service.com", subject: "Your payment was declined", isScam: true }, // Note the capital 'I' in PaypaI
+        { from: "gift@discord-nitro.xyz", subject: "Free Nitro: 3 months left!", isScam: true },
+        { from: "security@snap-chat.net", subject: "Password change request", isScam: true },
+
+        /* SAFE EMAILS */
         { from: "mom@gmail.com", subject: "Dinner choice tonight?", isScam: false },
-        { from: "no-reply@roblox.com", subject: "Your Monthly safety report is ready", isScam: false },
+        { from: "no-reply@roblox.com", subject: "Monthly safety report ready", isScam: false },
         { from: "coach@school.edu", subject: "Practice Update for Tuesday", isScam: false },
-        { from: "library@townhall.gov", subject: "Book ready for pickup!", isScam: false }
+        { from: "library@townhall.gov", subject: "Book ready for pickup!", isScam: false },
+        { from: "newsletter@natgeo.com", subject: "10 Weird Facts About Sharks", isScam: false },
+        { from: "teacher@classroom.edu", subject: "Science Project Guidelines", isScam: false },
+        { from: "no-reply@youtube.com", subject: "A new video was uploaded!", isScam: false },
+        { from: "help@minecraft.net", subject: "Thanks for contacting support", isScam: false },
+        { from: "principal@myschool.edu", subject: "School Lunch Menu: April", isScam: false },
+        { from: "updates@khanacademy.org", subject: "Keep up your learning streak!", isScam: false },
+        { from: "friend@outlook.com", subject: "Happy Birthday!", isScam: false },
+        { from: "donotreply@disney.com", subject: "New movies coming this summer", isScam: false }
     ];
+
 
     function startGame() {
         const input = document.getElementById('player-name-input').value;
