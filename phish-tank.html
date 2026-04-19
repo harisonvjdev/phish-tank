@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Phish Tank</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: linear-gradient(to bottom, #4facfe 0%, #0077be 100%); 
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif; 
+            color: white; 
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 45px;
+            background: #e3c18d;
+            z-index: 1;
+            border-top: 4px solid #d4ae7b;
+        }
+
+        .plant {
+            position: absolute;
+            bottom: 40px;
+            width: 12px;
+            background: #27ae60;
+            border-radius: 50% 50% 0 0;
+            z-index: 2;
+            transform-origin: bottom center;
+            animation: sway 4s infinite ease-in-out;
+        }
+        @keyframes sway {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        .bubble-bg {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            bottom: -50px;
+            animation: rise 10s infinite ease-in;
+            z-index: 0;
+        }
+        @keyframes rise {
+            0% { transform: translateY(0); opacity: 0.5; }
+            100% { transform: translateY(-110vh); opacity: 0; }
+        }
+
+        #header-area {
+            position: fixed;
+            top: 15px;
+            left: 20px;
+            text-align: left;
+            z-index: 100;
+        }
+        #game-title-header { 
+            font-size: 36px; 
+            font-weight: 900; 
+            color: #00f2fe; 
+            margin: 0;
+        }
+        #game-subtitle {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 2px;
+        }
+
+        #ui { 
+            position: fixed; 
+            top: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 10; 
+            font-size: 20px; 
+            font-weight: bold; 
+            color: #fff; 
+            display: flex; 
+            gap: 30px; 
+            background: rgba(0, 0, 0, 0.3); 
+            padding: 10px 25px; 
+            border-radius: 30px; 
+        }
+
+        #welcome-user {
+            position: fixed;
+            top: 25px;
+            right: 180px; 
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+            z-index: 100;
+            display: none;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        #game-container { position: relative; width: 100vw; height: 100vh; display: none; z-index: 5; }
+        
+        #mailbox-goal {
+            position: absolute; right: 0; top: 0; width: 160px; height: 100%;
+            background: #333; border-left: 5px solid #555;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10;
+        }
+        .computer-icon { font-size: 80px; }
+
+        #tank-instructions {
+            position: absolute;
+            bottom: 60px;
+            left: 20px;
+            background: rgba(0, 30, 60, 0.4);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            z-index: 4;
+        }
+
+        #start-screen {
+            position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+            text-align: center; background: rgba(0, 30, 60, 0.95); padding: 25px; border-radius: 20px; 
+            z-index: 200; border: 5px solid #00f2fe; width: 85%; max-width: 650px;
+        }
+        
+        #player-name-input { padding: 10px; font-size: 16px; border-radius: 5px; border: 2px solid #00f2fe; margin-bottom: 15px; width: 220px; text-align: center; background: #fff; color: #333; }
+        .btn-start { background: #00f2fe; padding: 12px 30px; border: none; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; color: #333; }
+
+        .message-box { 
+            position: absolute; left: -320px; width: 280px; background: #fff; border-radius: 15px; 
+            border: 2px solid #3498db; color: #333; z-index: 10; overflow: hidden;
+        }
+        .sender-info { font-size: 11px; background: #f8f9fa; padding: 5px 15px; color: #e67e22; font-weight: bold; border-bottom: 1px solid #eee; }
+        .msg-subject { font-size: 15px; font-weight: 700; color: #2c3e50; padding: 15px; height: 40px; display: flex; align-items: center; justify-content: center; text-align: center; }
+
+        .btn-group { display: flex; border-top: 1px solid #eee; }
+        .btn { flex: 1; border: none; padding: 15px; cursor: pointer; font-weight: bold; font-size: 14px; color: white; }
+        .btn-report { background: #ff4757; } 
+        .btn-clean { background: #2ed573; }  
+
+        #end-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 30, 60, 0.95); display: none; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 300; text-align: center;
+        }
+
+        .inline-feedback { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; text-align: center; color: white; z-index: 20; animation: fadeIn 0.3s forwards; }
+        #malware-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ff0000; opacity: 0; pointer-events: none; z-index: 100; transition: opacity 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div id="header-area">
+    <div id="game-title-header">PHISH TANK</div>
+    <div id="game-subtitle">Spot clean emails. Report scams</div>
+</div>
+
+<div id="welcome-user">Welcome, <span id="display-name">Player</span>!</div>
+
+<div id="ui">
+    <div style="color: #2ed573;">Correct: <span id="correct-count">0</span>/5</div>
+    <div style="color: #ff4757;">Errors: <span id="incorrect-count">0</span>/5</div>
+</div>
+
+<div id="start-screen">
+    <input type="text" id="player-name-input" placeholder="Enter Your Name" maxlength="15">
+    <div style="display:flex; justify-content: space-around; gap:15px; margin: 15px 0;">
+        <div style="flex:1; padding:10px; border-radius:10px; font-size:13px; text-align:left; background:#1e4620; border:2px solid #2ed573;">
+            <h3 style="margin-top:0;">Safe</h3>
+            <ul><li>Ends in <b>.com</b> or <b>.edu</b></li><li>Real: <b>roblox.com</b></li></ul>
+        </div>
+        <div style="flex:1; padding:10px; border-radius:10px; font-size:13px; text-align:left; background:#4a1c1c; border:2px solid #ff4757;">
+            <h3 style="margin-top:0;">Suspicious</h3>
+            <ul><li>Ends in <b>.biz</b> or <b>.net</b></li><li>Fake: <b>r0blox.biz</b></li></ul>
+        </div>
+    </div>
+    <button class="btn-start" onclick="startGame()">START DEFENSE</button>
+</div>
+
+<div id="end-overlay">
+    <h1 id="end-title"></h1>
+    <p id="end-message"></p>
+    <button class="btn-start" onclick="location.reload()">PLAY AGAIN</button>
+</div>
+
+<div id="malware-overlay"></div>
+<div id="game-container">
+    <div id="tank-instructions">
+        <b>CONTROLS:</b><br>
+        🖱️ <b>Hover</b> to Pause<br>
+        🚩 <b>Report</b> Scam<br>
+        ✨ <b>Safe</b> for Clean
+    </div>
+    <div id="mailbox-goal"><div class="computer-icon">💻</div></div>
+</div>
+
+<script>
+    function createPlants() {
+        for(let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.className = 'plant';
+            p.style.height = (Math.random() * 100 + 50) + 'px';
+            p.style.left = (Math.random() * 75) + 'vw'; 
+            p.style.animationDelay = (Math.random() * 4) + 's';
+            p.style.opacity = '0.8';
+            document.body.appendChild(p);
+        }
+    }
+    function createBgBubbles() {
+        for(let i = 0; i < 15; i++) {
+            const b = document.createElement('div');
+            b.className = 'bubble-bg';
+            let size = Math.random() * 20 + 10;
+            b.style.width = size + 'px'; b.style.height = size + 'px';
+            b.style.left = Math.random() * 100 + 'vw';
+            b.style.animationDelay = Math.random() * 10 + 's';
+            document.body.appendChild(b);
+        }
+    }
+    createPlants();
+    createBgBubbles();
+
+    const container = document.getElementById('game-container');
+    const overlay = document.getElementById('malware-overlay');
+    const startScreen = document.getElementById('start-screen');
+    const endOverlay = document.getElementById('end-overlay');
+    const welcomeArea = document.getElementById('welcome-user');
+    
+    let playerName = "Player";
+    let score = 0, threats = 0, activeEmails = 0, gameActive = false, globallyPaused = false;
+    let availableEmails = [];
+    
+    // MOVED LANES HIGHER (Previous were 220 and 500)
+    const lanes = [ { y: 170, occupied: false }, { y: 410, occupied: false } ];
+
+    const emailDatabase = [
+        { from: "support@g0ogle.net", subject: "Security Alert: Login detected", isScam: true },
+        { from: "admin@robux-claims.io", subject: "Free 10,000 Robux for you!", isScam: true },
+        { from: "verify@netfllx-billing.co", subject: "Account on hold - update now", isScam: true },
+        { from: "delivery@fedex-tracking.biz", subject: "Package Pending Arrival", isScam: true },
+        { from: "mom@gmail.com", subject: "Dinner choice tonight?", isScam: false },
+        { from: "no-reply@roblox.com", subject: "Your Monthly safety report is ready", isScam: false },
+        { from: "coach@school.edu", subject: "Practice Update for Tuesday", isScam: false },
+        { from: "library@townhall.gov", subject: "Book ready for pickup!", isScam: false }
+    ];
+
+    function startGame() {
+        const input = document.getElementById('player-name-input').value;
+        if(input.trim()) playerName = input;
+        document.getElementById('display-name').innerText = playerName;
+        startScreen.style.display = 'none';
+        welcomeArea.style.display = 'block';
+        container.style.display = 'block';
+        gameActive = true;
+        availableEmails = [...emailDatabase].sort(() => Math.random() - 0.5);
+        spawnLoop();
+    }
+
+    function spawnLoop() {
+        if (!gameActive) return;
+        if (!globallyPaused && activeEmails < 2) {
+            const freeLanes = lanes.filter(l => !l.occupied);
+            if (freeLanes.length > 0 && availableEmails.length > 0) createBox(freeLanes[Math.floor(Math.random() * freeLanes.length)]);
+        }
+        setTimeout(spawnLoop, 1500); 
+    }
+
+    function createBox(lane) {
+        lane.occupied = true; activeEmails++;
+        const data = availableEmails.pop();
+        const box = document.createElement('div');
+        let localPaused = false, actionTaken = false;
+        box.onmouseenter = () => { if(gameActive) { localPaused = true; globallyPaused = true; } };
+        box.onmouseleave = () => { if(gameActive) { localPaused = false; globallyPaused = false; } };
+        box.className = 'message-box';
+        box.style.top = lane.y + "px";
+        box.innerHTML = `<div class="sender-info">FROM: ${data.from}</div><div class="msg-subject">${data.subject}</div><div class="btn-group"><button class="btn btn-report">SCAM</button><button class="btn btn-clean">SAFE</button></div>`;
+        container.appendChild(box);
+        let pos = -320;
+        const move = setInterval(() => {
+            if (!gameActive) return clearInterval(move);
+            if (!localPaused && !actionTaken) {
+                pos += 1.4;
+                box.style.left = pos + "px";
+            }
+            if (pos > (window.innerWidth / 2)) lane.occupied = false;
+            if (pos > (window.innerWidth - 180)) {
+                actionTaken = true; clearInterval(move);
+                availableEmails.unshift(data); box.remove();
+                activeEmails--; lane.occupied = false; globallyPaused = false;
+            }
+        }, 16);
+        box.querySelector('.btn-report').onclick = () => {
+            actionTaken = true;
+            if (data.isScam) { score++; showInlayFeedback(box, "Well done!", "#2ed573"); }
+            else { threats++; showInlayFeedback(box, "Oops! That was safe.", "#ffcc00"); }
+            updateUI(); setTimeout(() => cleanup(box, move, lane), 3000);
+        };
+        box.querySelector('.btn-clean').onclick = () => {
+            actionTaken = true;
+            if (!data.isScam) { score++; showInlayFeedback(box, "SAFE Email Delivered!", "#2ed573"); }
+            else { threats++; showInlayFeedback(box, "OH NO! Virus!", "#ff4757"); overlay.style.opacity = "0.7"; setTimeout(() => overlay.style.opacity = "0", 400); }
+            updateUI(); setTimeout(() => cleanup(box, move, lane), 3000);
+        };
+    }
+
+    function showInlayFeedback(box, text, color) {
+        const inlay = document.createElement('div');
+        inlay.className = 'inline-feedback'; inlay.style.backgroundColor = color; inlay.innerText = text;
+        box.appendChild(inlay);
+    }
+
+    function cleanup(el, interval, lane) {
+        if(el.parentNode) el.remove();
+        clearInterval(interval);
+        activeEmails--; lane.occupied = false; globallyPaused = false;
+        if (availableEmails.length === 0 && gameActive) availableEmails = [...emailDatabase].sort(() => Math.random() - 0.5);
+    }
+
+    function updateUI() {
+        document.getElementById('correct-count').innerText = score;
+        document.getElementById('incorrect-count').innerText = threats;
+        if (score >= 5) showEndGame(true);
+        if (threats >= 5) showEndGame(false);
+    }
+
+    function showEndGame(won) {
+        gameActive = false;
+        welcomeArea.style.display = 'none';
+        endOverlay.style.display = 'flex';
+        document.getElementById('end-title').innerText = won ? "VICTORY!" : "GAME OVER";
+        document.getElementById('end-message').innerText = won ? `Amazing job, ${playerName}!` : `Try again, ${playerName}!`;
+    }
+</script>
+</body>
+</html>
